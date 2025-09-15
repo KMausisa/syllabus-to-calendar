@@ -1,9 +1,10 @@
 import React from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePdfTableExtractor } from "./hooks/usePdfTableExtractor";
 import { handleGenerate } from "./hooks/handleGenerate";
 
 export default function PdfUploader() {
+  const [response, setResponse] = useState<string>("");
   const { prompt, loading, extractFromFile } = usePdfTableExtractor();
 
   useEffect(() => {
@@ -12,7 +13,8 @@ export default function PdfUploader() {
     const run = async () => {
       console.log("Prompt updated in App component:", prompt);
       const response = await handleGenerate(prompt);
-      console.log("Response from handleGenerate:", response);
+      console.log("Response from /api/generate:", response);
+      setResponse(response);
     };
 
     run();
@@ -30,7 +32,7 @@ export default function PdfUploader() {
       <input type="file" accept="application/pdf" onChange={handleFileChange} />
       {loading && <p>Extracting...</p>}
       <pre className="text-xs mt-4 whitespace-pre-wrap">
-        Testing....
+        {response || "No response yet."}
       </pre>
     </div>
   );

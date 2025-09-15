@@ -23,19 +23,27 @@ export function usePdfTableExtractor() {
       contents.push(content.items);
     }
 
-    let fullText = contents
+    console.log("Raw extracted contents:", contents);
+
+    let text = contents
       .flat()
-      .flatMap((pageItems: any) => pageItems.str)
-      .filter((t) => t.length > 0)
-      .join(" ");
+      .flatMap((pageItems: any) => {
+        const text = pageItems.str;
+        if (text === "") return "\n";
+        if (text === " ") return " ";
+        return text.trim(); // replace empty string with one space
+      })
+      .join("");
+
+    console.log("Extracted text:", text);
 
     const prompt =
       "Extract the assignments from the syllabus text below. " +
       "Return the results as a JSON array of objects with the following keys: " +
-      "'date' (in YYYY-MM-DD format), 'assignment', and 'details'. " +
+      "'week', 'date' (in YYYY-MM-DD format), 'time and location (if not specified use 'N/A') of class', 'list of assignments and when to complete them', and 'details'. " +
       "If the date is not specified, use 'TBD'. " +
       "Here is the syllabus text:\n\n" +
-      fullText;
+      text;
 
     setPrompt(prompt);
   };
