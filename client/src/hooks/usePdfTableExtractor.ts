@@ -35,8 +35,6 @@ export function usePdfTableExtractor() {
       })
       .join("");
 
-    console.log("Extracted text:", text);
-
     const prompt =
       "Extract the assignments from the syllabus text below. " +
       "Return the results as a JSON array of objects with the following keys: " +
