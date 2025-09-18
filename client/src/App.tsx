@@ -12,13 +12,14 @@ export default function PdfUploader() {
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
   const { prompt, loading, extractFromFile } = usePdfTableExtractor();
   const { createTasks, success, error } = useCreateTasks();
+  const API_BASE = import.meta.env.VITE_API_BASE_URL
 
   // Check session on mount
   useEffect(() => {
     // Check the user login status
     const checkStatus = async () => {
       try {
-        const response = await fetch("/api/session", {credentials: "include"})
+        const response = await fetch(`${API_BASE}/api/session`, {credentials: "include"})
         const data = await response.json()
         setLoggedIn(data.loggedIn)
       } catch (error) {
@@ -91,7 +92,7 @@ export default function PdfUploader() {
       <div className="p-4">
         <h3>Please sign in to Google first</h3>
         <a
-          href="http://localhost:5000/auth/google"
+          href={`${API_BASE}/auth/google`}
           className="bg-blue-500 text-white px-4 py-2 rounded"
         >
           Sign in with Google
