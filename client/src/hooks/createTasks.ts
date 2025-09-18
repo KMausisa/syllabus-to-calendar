@@ -1,14 +1,16 @@
 // Create tasks to add to calendar
 import { useState } from "react";
-import { google } from "googleapis";
 
+/**
+ * Hook that creates tasks by making a call to the backend. Passes tasks into the body.
+ * @returns createTasks function and three different states: "loading", "error", and "success"
+ */
 export function useCreateTasks() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   const createTasks = async (tasks: any[]) => {
-    console.log(`Tasks passed into createTasks: ${tasks}`);
     setLoading(true);
     setError(null);
     setSuccess(null);

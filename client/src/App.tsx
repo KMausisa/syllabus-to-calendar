@@ -4,10 +4,31 @@ import { usePdfTableExtractor } from "./hooks/usePdfTableExtractor";
 import { useCreateTasks } from "./hooks/createTasks";
 import { handleGenerate } from "./hooks/handleGenerate";
 
+import CalendarView from "./components/CalendarView"
+
 export default function PdfUploader() {
   const [response, setResponse] = useState<string>("");
+  const [refresh, setRefresh] = useState<number>(0);
+  const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
   const { prompt, loading, extractFromFile } = usePdfTableExtractor();
-  const { createTasks } = useCreateTasks();
+  const { createTasks, success, error } = useCreateTasks();
+
+  // Check session on mount
+  useEffect(() => {
+    // Check the user login status
+    const checkStatus = async () => {
+      try {
+        const response = await fetch("/api/session")
+        const data = await response.json()
+        setLoggedIn(data.loggedIn)
+      } catch (error) {
+        console.log("Error in validating user session: ", error);
+        setLoggedIn(false)
+      }
+    };
+
+    checkStatus();
+  }, [])
 
   useEffect(() => {
     if (!prompt) return;
@@ -47,9 +68,9 @@ export default function PdfUploader() {
       const tasksResponse = await handleGenerate(createTaskPrompt);
       const parsed = JSON.parse(tasksResponse);
       const tasks = parsed.events ?? parsed.result ?? parsed;
-      console.log(tasks)
 
       await createTasks(tasks);
+      setRefresh(prev => prev + 1);
     };
 
     run();
@@ -62,13 +83,30 @@ export default function PdfUploader() {
     }
   };
 
+  if (loggedIn === null) return <p>Checking sign-in...</p>
+
+  // Direct user to sign in if not already
+  if (!loggedIn) {
+    return (
+      <div className="p-4">
+        <h3>Please sign in to Google first</h3>
+        <a
+          href="http://localhost:5000/auth/google"
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Sign in with Google
+        </a>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4">
       <input type="file" accept="application/pdf" onChange={handleFileChange} />
       {loading && <p>Extracting...</p>}
-      <pre className="text-xs mt-4 whitespace-pre-wrap">
-        {response || "No response yet."}
-      </pre>
+      {success ?? <p>{success}</p>}
+      {error ?? <p>{error}</p>}
+      <CalendarView refresh={refresh}/>
     </div>
   );
 }

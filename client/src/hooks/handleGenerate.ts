@@ -1,5 +1,11 @@
+/**
+ * Generates the response from the LLM by making a call to the backend
+ * @param prompt - The string to pass into the LLM.
+ * @returns The response generated.
+ * @error Throws and error if the operation was unsuccessful
+ */
 export const handleGenerate = async (prompt: string) => {
-  console.log("Sending prompt to /api/generate:", prompt);
+  console.log("Sending prompt to /api/generate...");
   const res = await fetch("/api/generate", {
     method: "POST",
     headers: {
@@ -9,7 +15,6 @@ export const handleGenerate = async (prompt: string) => {
   });
 
   if (!res.ok) {
-    // Read raw text so you can see the backend error page or message
     const errorText = await res.text();
     console.error(`Server error ${res.status}:`, errorText);
     throw new Error(`Request failed: ${res.status}`);

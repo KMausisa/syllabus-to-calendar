@@ -2,6 +2,10 @@
 import { useState } from "react";
 import pdfjsLib from "../lib/pdfSetup";
 
+/**
+ * Uses the pdfjs Library to parse and extract the syllabus text.
+ * @returns extractFromFile (function), prompt (to pass into LLM), and loading (boolean)
+ */
 export function usePdfTableExtractor() {
   const [loading, setLoading] = useState(false);
   const [prompt, setPrompt] = useState<string>("");
@@ -29,7 +33,7 @@ export function usePdfTableExtractor() {
         const text = pageItems.str;
         if (text === "") return "\n";
         if (text === " ") return " ";
-        return text.trim(); // replace empty string with one space
+        return text.trim();
       })
       .join("");
 
