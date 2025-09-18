@@ -11,7 +11,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.19",
+    "@fullcalendar/daygrid": "^6.1.19",
+    "@fullcalendar/react": "^6.1.19",
+    "@fullcalendar/timegrid": "^6.1.19",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
     "dotenv": "^17.2.2",
+    "googleapis": "^159.0.0",
     "openai": "^5.20.2",
     "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^5.4.149",

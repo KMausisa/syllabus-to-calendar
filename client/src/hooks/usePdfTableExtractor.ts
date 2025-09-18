@@ -2,6 +2,10 @@
 import { useState } from "react";
 import pdfjsLib from "../lib/pdfSetup";
 
+/**
+ * Uses the pdfjs Library to parse and extract the syllabus text.
+ * @returns extractFromFile (function), prompt (to pass into LLM), and loading (boolean)
+ */
 export function usePdfTableExtractor() {
   const [loading, setLoading] = useState(false);
   const [prompt, setPrompt] = useState<string>("");
@@ -23,25 +27,48 @@ export function usePdfTableExtractor() {
       contents.push(content.items);
     }
 
-    console.log("Raw extracted contents:", contents);
-
     let text = contents
       .flat()
       .flatMap((pageItems: any) => {
         const text = pageItems.str;
         if (text === "") return "\n";
         if (text === " ") return " ";
-        return text.trim(); // replace empty string with one space
+        return text.trim();
       })
       .join("");
 
-    const prompt =
-      "Extract the assignments from the syllabus text below. " +
-      "Return the results as a JSON array of objects with the following keys: " +
-      "'week', 'date' (in YYYY-MM-DD format), 'time and location (if not specified use 'N/A') of class', 'list of assignments and when to complete them', and 'details'. " +
-      "If the date is not specified, use 'TBD'. " +
-      "Here is the syllabus text:\n\n" +
-      text;
+    const prompt = `
+      Extract **all** assignments from the syllabus text below.
+      Return ONLY a valid JSON array where each object represents one week and uses this schema:
+
+      [
+        {
+          "week": "number or string",
+          "date": "YYYY-MM-DD of class meeting (or array if multiple meetings), or 'No class'/'TBD' if none",
+          "time_location": "class time & room, or 'N/A'",
+          "course": "course name",
+          "assignments": [
+            {
+              "assignment": "full text of the task (add '(TBD exact date)' if due date is unknown)",
+              "due_date": "YYYY-MM-DD of actual or first-day-of-week due date, or 'TBD'"
+            }
+          ],
+          "details": "notes for the week's work"
+        }
+      ]
+
+      Rules:
+      • Include **every** assignment, required or optional, even if no due date is given.
+      • If due date is right before class, set it to 30 minutes before class starts.
+      • If a due date is missing or unclear, set \`due_date\` to the Monday of that week in YYYY-MM-DD format and append "(TBD exact date)" to the assignment text.
+      • Do not summarize or omit anything.
+
+      Example:
+      [ { "week": "1", "date": "2025-01-08", "time_location": "Wed 9:00–10:50, Room F108", "course": "Legal Communication and Research Skills II", "assignments": [ { "assignment": "Read Chapters 1–3", "due_date": "2025-01-08T8:30:00" } ], "details": "Intro class and syllabus review." } ]
+
+      Syllabus text:
+      ${text}
+    `;
 
     setPrompt(prompt);
   };
