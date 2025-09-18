@@ -18,6 +18,7 @@ export function useCreateTasks() {
       await fetch("/api/add-events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(tasks),
       });
       setSuccess("Tasks successfully added to calendar!");

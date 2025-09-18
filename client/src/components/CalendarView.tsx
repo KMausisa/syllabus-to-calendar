@@ -13,7 +13,7 @@ export default function CalendarView({ refresh }: CalendarViewProps) {
   const calendarRef = useRef<FullCalendar | null>(null);
 
   const fetchEvents = async () => {
-    const res = await fetch("/api/events");
+    const res = await fetch("/api/events", {credentials: "include"});
     const data = await res.json();
 
     const formatted: EventInput[] = data.map((e: any) => ({
