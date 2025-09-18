@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import jwt from "jsonwebtoken";
 
 import { Credentials } from "google-auth-library";
@@ -29,10 +30,19 @@ console.log("API Key:", process.env.OPENAI_API_KEY ? "Loaded" : "Not Loaded");
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://syllabus-to-calendar-lake.vercel.app",
+    ],
+    credentials: true,
+  })
+);
 
 const redirectUri =
   process.env.NODE_ENV === "production"
-    ? "https://syllabus-to-calendar-lake.vercel.app/oauth2callback"
+    ? "https://syllabus-to-calendar-yjkk.onrender.com/oauth2callback"
     : "http://localhost:5000/oauth2callback";
 
 // Configure Google OAuth2 client
