@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
-import session from "express-session";
+import cookieParser from "cookie-parser";
+import jwt from "jsonwebtoken";
 
 import { Credentials } from "google-auth-library";
 const google = require("googleapis").google;
@@ -7,9 +8,17 @@ const google = require("googleapis").google;
 import OpenAI from "openai";
 require("dotenv").config();
 
-declare module "express-session" {
-  interface SessionData {
-    tokens?: Credentials;
+const JWT_SECRET = process.env.JWT_SECRET as string;
+
+function generateJWT(tokens: Credentials) {
+  return jwt.sign({ tokens }, JWT_SECRET, { expiresIn: "7d" });
+}
+
+function verifyJWT(token: string) {
+  try {
+    return jwt.verify(token, JWT_SECRET) as { tokens: Credentials };
+  } catch {
+    return null;
   }
 }
 
@@ -17,30 +26,26 @@ const app = express();
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 console.log("API Key:", process.env.OPENAI_API_KEY ? "Loaded" : "Not Loaded");
-console.log(
-  "SESSION SECRET:",
-  process.env.SESSION_SECRET ? "Loaded" : "Not Loaded"
-);
 
 app.use(express.json());
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET as string,
-    resave: false,
-    saveUninitialized: true,
-  })
-);
+app.use(cookieParser());
+
+const redirectUri =
+  process.env.NODE_ENV === "production"
+    ? "https://syllabus-to-calendar-lake.vercel.app/oauth2callback"
+    : "http://localhost:5000/oauth2callback";
 
 // Configure Google OAuth2 client
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  "http://localhost:5000/oauth2callback"
+  redirectUri
 );
 
 // Get the Home Page where the use signs in with Google.
 app.get("/", (req: Request, res: Response) => {
-  if (!req.session.tokens) {
+  const token = req.cookies.auth_token;
+  if (!token) {
     res.send(`
       <html>
         <body>
@@ -81,30 +86,41 @@ app.get("/auth/google", (req, res) => {
 });
 
 app.get("/oauth2callback", async (req: Request, res: Response) => {
-  const { code } = req.query;
   // Check if code was retrieved
-  if (!req.query.code) return res.status(400).send("Missing code");
+  const { code } = req.query;
+  if (!code) return res.status(400).send("Missing code");
 
   const { tokens } = await oauth2Client.getToken(code as string);
+  oauth2Client.setCredentials(tokens);
 
-  req.session.tokens = tokens;
-  // oauth2Client.setCredentials(tokens);
+  const token = generateJWT(tokens);
+  res.cookie("auth_token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+  });
 
   res.redirect("http://localhost:5173");
 });
 
 // Check if tokens are generated and return result as boolean.
 app.get("/api/session", (req: Request, res: Response) => {
-  res.json({ loggedIn: !!req.session.tokens });
+  const token = req.cookies.auth_token;
+  if (!token) return res.json({ loggedIn: false });
+
+  const payload = verifyJWT(token);
+  res.json({ loggedIn: !!payload });
 });
 
 // Grab the events in user's primary calendar of the current year.
 app.get("/api/events", async (req: Request, res: Response) => {
-  if (!req.session.tokens)
-    return res.status(401).json({ error: "Not logged in" });
+  const token = req.cookies.auth_token;
+  if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+  const payload = verifyJWT(token);
+  if (!payload) return res.status(401).json({ error: "Invalid token" });
 
   try {
-    oauth2Client.setCredentials(req.session.tokens);
+    oauth2Client.setCredentials(payload.tokens);
     const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
     const now = new Date();
@@ -131,8 +147,13 @@ app.get("/api/events", async (req: Request, res: Response) => {
 // Add the parsed events to the user's calendar
 app.post("/api/add-events", async (req: Request, res: Response) => {
   try {
-    // retrieve and set saved tokens first
-    oauth2Client.setCredentials(req.session.tokens);
+    const token = req.cookies.auth_token;
+    if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+    const payload = verifyJWT(token);
+    if (!payload) return res.status(401).json({ error: "Invalid token" });
+
+    oauth2Client.setCredentials(payload.tokens);
     const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
     if (!Array.isArray(req.body)) {
