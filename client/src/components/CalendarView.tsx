@@ -8,12 +8,18 @@ interface CalendarViewProps {
   refresh?: number;
 }
 
+const API_BASE =
+  import.meta.env.MODE === "production"
+    ? "https://syllabus-to-calendar-yjkk.onrender.com"  // Render backend URL
+    : import.meta.env.VITE_API_BASE_URL;               // Local dev
+
+
 export default function CalendarView({ refresh }: CalendarViewProps) {
   const [events, setEvents] = useState<EventInput[]>([]);
   const calendarRef = useRef<FullCalendar | null>(null);
 
   const fetchEvents = async () => {
-    const res = await fetch("/api/events", {credentials: "include"});
+    const res = await fetch(`${API_BASE}/api/events`, {credentials: "include"});
     const data = await res.json();
 
     const formatted: EventInput[] = data.map((e: any) => ({
