@@ -138,16 +138,20 @@ app.get("/api/events", async (req: Request, res: Response) => {
 
     const now = new Date();
     const currentYear = now.getFullYear();
-    const startOfYear = new Date(`${currentYear}-01-01T00:00:00`).toISOString();
-    const endOfYear = new Date(`${currentYear}-12-31T23:59:59`).toISOString();
+    const startOfSearch = new Date(
+      `${currentYear - 2}-01-01T00:00:00`
+    ).toISOString();
+    const endOfSearch = new Date(
+      `${currentYear + 2}-12-31T23:59:59`
+    ).toISOString();
 
     const events = await calendar.events.list({
       calendarId: "primary",
-      timeMin: startOfYear,
-      timeMax: endOfYear,
+      timeMin: startOfSearch,
+      timeMax: endOfSearch,
       singleEvents: true,
       orderBy: "startTime",
-      maxResults: 2500, // optional, to fetch more events
+      maxResults: 2500,
     });
 
     res.json(events.data.items);
