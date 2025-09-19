@@ -41,6 +41,7 @@ export default function PdfUploader() {
 
     const run = async () => {
       const result = await handleGenerate(prompt);
+      console.log("Course assignments:", result)
       setResponse(result);
 
       const createTaskPrompt = `
@@ -74,6 +75,8 @@ export default function PdfUploader() {
       const tasksResponse = await handleGenerate(createTaskPrompt);
       const parsed = JSON.parse(tasksResponse);
       const tasks = parsed.events ?? parsed.result ?? parsed;
+
+      console.log("Tasks to be added to Google Calendar:", tasks)
 
       await createTasks(tasks);
       setRefresh(prev => prev + 1);
