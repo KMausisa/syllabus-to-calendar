@@ -28,28 +28,30 @@ const app = express();
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 console.log("API Key:", process.env.OPENAI_API_KEY ? "Loaded" : "Not Loaded");
 
+const FRONTEND_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://syllabus-to-calendar-lake.vercel.app"
+    : "http://localhost:5173";
+
+const BACKEND_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://syllabus-to-calendar-yjkk.onrender.com"
+    : "http://localhost:5000";
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://syllabus-to-calendar-lake.vercel.app",
-    ],
+    origin: [FRONTEND_URL],
     credentials: true,
   })
 );
-
-const redirectUri =
-  process.env.NODE_ENV === "production"
-    ? "https://syllabus-to-calendar-yjkk.onrender.com/oauth2callback"
-    : "http://localhost:5000/oauth2callback";
 
 // Configure Google OAuth2 client
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  redirectUri
+  `${BACKEND_URL}/oauth2callback`
 );
 
 // Get the Home Page where the use signs in with Google.
@@ -109,11 +111,7 @@ app.get("/oauth2callback", async (req: Request, res: Response) => {
     secure: process.env.NODE_ENV === "production",
   });
 
-  res.redirect(
-    process.env.NODE_ENV === "production"
-      ? "https://syllabus-to-calendar-lake.vercel.app"
-      : "http://localhost:5173"
-  );
+  res.redirect(FRONTEND_URL);
 });
 
 // Check if tokens are generated and return result as boolean.
@@ -201,5 +199,5 @@ app.post("/api/generate", async (req, res) => {
 });
 
 app.listen(5000, () => {
-  console.log("Server is running on http://localhost:5000");
+  console.log(`Server is running on ${BACKEND_URL}`);
 });
