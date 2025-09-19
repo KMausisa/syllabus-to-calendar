@@ -109,7 +109,11 @@ app.get("/oauth2callback", async (req: Request, res: Response) => {
     secure: process.env.NODE_ENV === "production",
   });
 
-  res.redirect("http://localhost:5173");
+  res.redirect(
+    process.env.NODE_ENV === "production"
+      ? "https://syllabus-to-calendar-lake.vercel.app"
+      : "http://localhost:5173"
+  );
 });
 
 // Check if tokens are generated and return result as boolean.

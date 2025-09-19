@@ -6,13 +6,18 @@ import { handleGenerate } from "./hooks/handleGenerate";
 
 import CalendarView from "./components/CalendarView"
 
+const API_BASE =
+import.meta.env.MODE === "production"
+  ? "https://syllabus-to-calendar-yjkk.onrender.com"
+  : import.meta.env.VITE_API_BASE_URL; 
+
 export default function PdfUploader() {
   const [response, setResponse] = useState<string>("");
   const [refresh, setRefresh] = useState<number>(0);
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
   const { prompt, loading, extractFromFile } = usePdfTableExtractor();
   const { createTasks, success, error } = useCreateTasks();
-  const API_BASE = import.meta.env.VITE_API_BASE_URL
+
 
   // Check session on mount
   useEffect(() => {
