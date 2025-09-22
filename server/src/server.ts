@@ -54,37 +54,11 @@ const oauth2Client = new google.auth.OAuth2(
   `${BACKEND_URL}/oauth2callback`
 );
 
-// Get the Home Page where the use signs in with Google.
+// Get the Home Page where the user signs in with Google.
 app.get("/", (req: Request, res: Response) => {
   const token = req.cookies.auth_token;
-  if (!token) {
-    res.send(`
-      <html>
-        <body>
-          <h1>Private Google Calendar</h1>
-          <a href="/auth/google">Sign in with Google</a>
-        </body>
-      </html>
-    `);
-  } else {
-    // User is logged in; serve a simple page with a script to fetch events
-    res.send(`
-      <html>
-        <body>
-          <h1>Your Calendar Events</h1>
-          <div id="calendar"></div>
-          <script>
-            fetch('/api/events')
-              .then(res => res.json())
-              .then(events => {
-                document.getElementById('calendar').innerText =
-                  JSON.stringify(events, null, 2);
-              });
-          </script>
-        </body>
-      </html>
-    `);
-  }
+  if (!token) return res.redirect(`${FRONTEND_URL}/login`);
+  return res.redirect(FRONTEND_URL);
 });
 
 // Redirect user to Google's consent screen
@@ -109,10 +83,22 @@ app.get("/oauth2callback", async (req: Request, res: Response) => {
   res.cookie("auth_token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   });
 
   res.redirect(FRONTEND_URL);
+});
+
+// Log out of user session
+app.get("/logout", (req: Request, res: Response) => {
+  res.clearCookie("auth_token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  });
+
+  // Redirect to login page
+  res.redirect(`${FRONTEND_URL}/login`);
 });
 
 // Check if tokens are generated and return result as boolean.
