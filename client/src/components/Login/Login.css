@@ -1,0 +1,40 @@
+
+.login-page {
+  min-height: 100dvh;                 /* full screen height */
+  display: flex;                     /* center horizontally/vertically */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background: #f9fafb;               /* light gray background */
+  font-family: system-ui, sans-serif;
+  text-align: center;
+}
+
+.login-page h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #111827;                    /* dark gray text */
+}
+
+.login-page p {
+  max-width: 400px;
+  margin-bottom: 2rem;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.login-page a {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: #4285f4;          /* Google blue */
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.login-page a:hover {
+  background-color: #3367d6;          /* darker blue on hover */
+}

@@ -1,4 +1,28 @@
-#root {
+/* Reset default browser styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: system-ui, sans-serif;
+}
+
+.loading {
+  min-height: 100dvh;                 /* full screen height */
+  display: flex;                     /* center horizontally/vertically */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background: #f9fafb;               /* light gray background */
+  font-family: system-ui, sans-serif;
+  text-align: center;
+}
+
+/* #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
@@ -32,11 +56,4 @@
     animation: logo-spin infinite 20s linear;
   }
 }
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
+ */

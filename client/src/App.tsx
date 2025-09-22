@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import Login from "./components/Login";
-import DashBoard from "./components/Dashboard";
+import Login from "./components/Login/Login";
+import DashBoard from "./components/Dashboard/Dashboard";
+
+import "./App.css"
 
 const API_BASE: string =
   import.meta.env.MODE === "production"
@@ -28,7 +30,7 @@ export default function App() {
       checkStatus();
     }, [])
 
-  if (loggedIn === null) return <div>Loading...</div>
+  if (loggedIn === null) return <div className="loading">Loading...</div>
 
   return (
     <Router>

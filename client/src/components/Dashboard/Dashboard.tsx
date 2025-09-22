@@ -1,10 +1,11 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { usePdfTableExtractor } from "../hooks/usePdfTableExtractor";
-import { useCreateTasks } from "../hooks/createTasks";
-import { handleGenerate } from "../hooks/handleGenerate";
+import { usePdfTableExtractor } from "../../hooks/usePdfTableExtractor";
+import { useCreateTasks } from "../../hooks/createTasks";
+import { handleGenerate } from "../../hooks/handleGenerate";
 
-import CalendarView from "../components/CalendarView"
+import CalendarView from "../CalendarView"
+import "./Dashboard.css"
 
 export default function DashBoard({url}: {url: string}) {
   const [response, setResponse] = useState<string>("");
@@ -70,13 +71,19 @@ export default function DashBoard({url}: {url: string}) {
 
 
   return (
-    <div className="p-4">
-      <input type="file" accept="application/pdf" onChange={handleFileChange} />
-      <a href={`${url}/logout`}>Log out</a>
+    <div className="dashboard">
+      <div className="header">
+        <input type="file" accept="application/pdf" onChange={handleFileChange} />
+        <a href={`${url}/logout`} className="logout-button">Log out</a>
+      </div>
+
       {loading && <p>Extracting...</p>}
-      {success ?? <p>{success}</p>}
-      {error ?? <p>{error}</p>}
-      <CalendarView refresh={refresh}/>
+      {success && <p>{success}</p>}
+      {error && <p>{error}</p>}
+
+      <div className="calendar-container">
+        <CalendarView refresh={refresh} />
+      </div>
     </div>
   );
 }
