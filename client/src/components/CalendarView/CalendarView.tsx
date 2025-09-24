@@ -2,10 +2,10 @@ import FullCalendar from "@fullcalendar/react";
 import { EventInput } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import listPlugin from '@fullcalendar/list'
+import listPlugin from "@fullcalendar/list";
 import { useEffect, useState, useRef } from "react";
 
-import "./CalendarView.css"
+import "./CalendarView.css";
 
 interface CalendarViewProps {
   refresh?: number;
@@ -13,16 +13,17 @@ interface CalendarViewProps {
 
 const API_BASE =
   import.meta.env.MODE === "production"
-    ? "https://syllabus-to-calendar-yjkk.onrender.com"  // Render backend URL
-    : import.meta.env.VITE_API_BASE_URL;               // Local dev
-
+    ? "https://syllabus-to-calendar-yjkk.onrender.com" // Render backend URL
+    : import.meta.env.VITE_API_BASE_URL; // Local dev
 
 export default function CalendarView({ refresh }: CalendarViewProps) {
   const [events, setEvents] = useState<EventInput[]>([]);
   const calendarRef = useRef<FullCalendar | null>(null);
 
   const fetchEvents = async () => {
-    const res = await fetch(`${API_BASE}/api/events`, {credentials: "include"});
+    const res = await fetch(`${API_BASE}/api/events`, {
+      credentials: "include",
+    });
     const data = await res.json();
 
     const formatted: EventInput[] = data.map((e: any) => ({
@@ -41,7 +42,6 @@ export default function CalendarView({ refresh }: CalendarViewProps) {
     fetchEvents();
   }, [refresh]); // <--- re-fetch when `refresh` changes
 
-
   return (
     <FullCalendar
       ref={calendarRef}
@@ -51,23 +51,54 @@ export default function CalendarView({ refresh }: CalendarViewProps) {
       headerToolbar={{
         left: "dayGridMonth,dayGridWeek,timeGridDay",
         center: "title",
-        right: "prev,next today"
+        right: "prev,next today",
       }}
+      height="auto"
       events={events}
       eventDidMount={(info) => {
         const { description, location } = info.event.extendedProps as any;
         info.el.setAttribute("title", `${description}\nLocation: ${location}`);
       }}
       windowResize={(arg) => {
-        const width = window.innerWidth
-        const calendar = arg.view.calendar
-        if (width < 768 && calendar.view.type !== "listWeek") {
-          calendar.changeView("listWeek")
-        } else if (width >= 768 && calendar.view.type !== "dayGridMonth") {
-          calendar.changeView('dayGridMonth')
+        const calendar = arg.view.calendar;
+        const width = window.innerWidth;
+
+        if (width < 768 && width >= 453) {
+          calendar.setOption("headerToolbar", {
+            left: "prev,next today",
+            center: "title",
+            right: "",
+          });
+          if (calendar.view.type !== "listWeek") {
+            calendar.changeView("listWeek");
+          }
+        } else if (width < 453) {
+          calendar.setOption("headerToolbar", {
+            left: "prev,next",
+            center: "",
+            right: "title",
+          });
+          calendar.setOption("buttonText", {
+            today: "Now",
+            month: "M",
+            week: "W",
+            day: "D",
+            list: "Agenda",
+          });
+          if (calendar.view.type !== "listWeek") {
+            calendar.changeView("listWeek");
+          }
+        } else {
+          calendar.setOption("headerToolbar", {
+            left: "dayGridMonth,timeGridWeek,timeGridDay",
+            center: "title",
+            right: "prev,next today",
+          });
+          if (calendar.view.type !== "dayGridMonth") {
+            calendar.changeView("dayGridMonth");
+          }
         }
       }}
     />
   );
 }
-

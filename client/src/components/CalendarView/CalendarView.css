@@ -22,3 +22,19 @@
   padding: 2px 4px;
   border-radius: 4px;
 }
+
+.fc-toolbar-chunk {
+  flex-wrap: wrap;           /* allow wrapping */
+  gap: 0.25rem;
+}
+
+.fc .fc-button {
+  font-size: 0.8rem;         /* smaller buttons on phones */
+  padding: 0.25rem 0.5rem;
+}
+@media (max-width: 767px) {
+  .fc-toolbar-title {
+    font-size: 1rem;
+  }
+}
+

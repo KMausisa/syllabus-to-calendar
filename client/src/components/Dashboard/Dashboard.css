@@ -60,3 +60,83 @@
   max-width: 900px;
   margin: 0 auto;
 }
+
+/* Dimmed background */
+.welcome-overlay {
+  position: fixed;
+  inset: 0;                        /* top:0 right:0 bottom:0 left:0 */
+  background: rgba(0, 0, 0, 0.5);   /* gray out underlying dashboard */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;      /* Controls stacking order. Higher value = closer to viewer */
+}
+
+.welcome-overlay.enter {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.welcome-overlay.exit {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+/* The card itself */
+.welcome-modal {
+  max-width: 480px;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 1rem;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  transform: translateY(-20px);
+}
+
+.welcome-modal.enter {
+  animation: slideIn 0.3s ease forwards;
+}
+
+.welcome-modal.exit {
+  animation: slideOut 0.3s ease forwards;
+}
+
+.welcome-modal h2 {
+  margin-top: 0;
+}
+
+.welcome-modal button {
+  margin-top: 1.5rem;
+  padding: 0.5rem 1.2rem;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.welcome-modal button:hover {
+  background: #1e40af;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-20px); }
+}
+
+
+

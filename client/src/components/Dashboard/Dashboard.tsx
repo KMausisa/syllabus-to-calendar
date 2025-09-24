@@ -8,12 +8,18 @@ import CalendarView from "../CalendarView/CalendarView"
 import "./Dashboard.css"
 
 export default function DashBoard({url}: {url: string}) {
+  const [showWelcome, setShowWelcome] = useState<boolean>(true);
+  const [exiting, setExiting] = useState<boolean>(false);
   const [response, setResponse] = useState<string>("");
   const [refresh, setRefresh] = useState<number>(0);
   const [fileError, setFileError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const { prompt, extractFromFile } = usePdfTableExtractor();
   const { createTasks, success, error } = useCreateTasks();
+
+  useEffect(() => {
+    if (localStorage.getItem("welcomeHidden") === "true") setShowWelcome(false);
+  }, [])
 
   useEffect(() => {
     if (!prompt) return;
@@ -87,13 +93,40 @@ export default function DashBoard({url}: {url: string}) {
     extractFromFile(file)
   };
 
+  const handleDismiss = () => {
+    setExiting(true);
+    setTimeout(() => {
+      setShowWelcome(false)
+      localStorage.setItem("welcomeHidden", "true")
+    }, 300)
+  }
+
+  const handleLogout = () => {
+    console.log("Resetting items...")
+    localStorage.removeItem("welcomeHidden")
+  }
+
 
   return (
     <div className="dashboard">
+      {/* Modal Overlay */}
+      {showWelcome && (
+        <div className={`welcome-overlay ${exiting ? "exit": "enter"}`}>
+          <div className={`welcome-modal ${exiting ? "exit": "enter"}`}>
+            <h2>Welcome to Syllabus-to-Calendar!</h2>
+            <p>
+              Upload a PDF syllabus to automatically add assignment dates to your Google Calendar.
+            </p>
+            <button onClick={handleDismiss}>Got it!</button>
+          </div>
+        </div>
+      )}
+
+      {/* Regular Content */}
       <div className="header">
         <input type="file" accept="application/pdf" onChange={handleFileChange} />
         {fileError && <p className="file-error">{fileError}</p>}
-        <a href={`${url}/logout`} className="logout-button">Log out</a>
+        <a href={`${url}/logout`} className="logout-button" onClick={handleLogout}>Log out</a>
       </div>
 
       {loading && <p>Extracting...</p>}
