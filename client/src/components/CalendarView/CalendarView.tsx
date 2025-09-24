@@ -2,7 +2,10 @@ import FullCalendar from "@fullcalendar/react";
 import { EventInput } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
+import listPlugin from '@fullcalendar/list'
 import { useEffect, useState, useRef } from "react";
+
+import "./CalendarView.css"
 
 interface CalendarViewProps {
   refresh?: number;
@@ -38,15 +41,31 @@ export default function CalendarView({ refresh }: CalendarViewProps) {
     fetchEvents();
   }, [refresh]); // <--- re-fetch when `refresh` changes
 
+
   return (
     <FullCalendar
       ref={calendarRef}
-      plugins={[dayGridPlugin, timeGridPlugin]}
+      plugins={[dayGridPlugin, timeGridPlugin, listPlugin]}
       initialView="dayGridMonth"
+      fixedWeekCount={false}
+      headerToolbar={{
+        left: "dayGridMonth,dayGridWeek,timeGridDay",
+        center: "title",
+        right: "prev,next today"
+      }}
       events={events}
       eventDidMount={(info) => {
         const { description, location } = info.event.extendedProps as any;
         info.el.setAttribute("title", `${description}\nLocation: ${location}`);
+      }}
+      windowResize={(arg) => {
+        const width = window.innerWidth
+        const calendar = arg.view.calendar
+        if (width < 768 && calendar.view.type !== "listWeek") {
+          calendar.changeView("listWeek")
+        } else if (width >= 768 && calendar.view.type !== "dayGridMonth") {
+          calendar.changeView('dayGridMonth')
+        }
       }}
     />
   );

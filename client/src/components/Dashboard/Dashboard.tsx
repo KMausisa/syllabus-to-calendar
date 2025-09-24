@@ -4,19 +4,22 @@ import { usePdfTableExtractor } from "../../hooks/usePdfTableExtractor";
 import { useCreateTasks } from "../../hooks/createTasks";
 import { handleGenerate } from "../../hooks/handleGenerate";
 
-import CalendarView from "../CalendarView"
+import CalendarView from "../CalendarView/CalendarView"
 import "./Dashboard.css"
 
 export default function DashBoard({url}: {url: string}) {
   const [response, setResponse] = useState<string>("");
   const [refresh, setRefresh] = useState<number>(0);
-  const { prompt, loading, extractFromFile } = usePdfTableExtractor();
+  const [fileError, setFileError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const { prompt, extractFromFile } = usePdfTableExtractor();
   const { createTasks, success, error } = useCreateTasks();
 
   useEffect(() => {
     if (!prompt) return;
 
     const run = async () => {
+      setLoading(true)
       const result = await handleGenerate(prompt);
       console.log("Course assignments:", result)
       setResponse(result);
@@ -40,6 +43,7 @@ export default function DashBoard({url}: {url: string}) {
       Rules:
       • Output only valid JSON — **no code fences, no extra text**.
       • Include **every** class meeting and **every** assignment, even optional ones.
+      • If an assignment is due before class, set the "end" time of the assignment to the "start" time of the class.
       • If an assignment is due in a week with no class, set start and end to the **Monday of that week at 09:00 and 10:50** and append "(TBD exact date)" to the description.
       • If a date or time is missing and cannot be inferred, use the Monday of the week and default times 09:00–10:50.
       • If multiple assignments appear in one item, create a separate event for each.
@@ -57,6 +61,8 @@ export default function DashBoard({url}: {url: string}) {
 
       await createTasks(tasks);
       setRefresh(prev => prev + 1);
+      setLoading(false)
+      
     };
 
     run();
@@ -64,9 +70,21 @@ export default function DashBoard({url}: {url: string}) {
 
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      extractFromFile(e.target.files[0]);
+    const file = e.target.files?.[0]
+    if (!file) return;
+
+    if (file.type != "application/pdf") {
+      setFileError("Please upload a PDF file")
+      return;
     }
+
+    if (!file.name.toLowerCase().endsWith(".pdf")) {
+      setFileError("The file must have a .pdf extension.");
+      return;
+    }
+
+    setFileError("")
+    extractFromFile(file)
   };
 
 
@@ -74,6 +92,7 @@ export default function DashBoard({url}: {url: string}) {
     <div className="dashboard">
       <div className="header">
         <input type="file" accept="application/pdf" onChange={handleFileChange} />
+        {fileError && <p className="file-error">{fileError}</p>}
         <a href={`${url}/logout`} className="logout-button">Log out</a>
       </div>
 

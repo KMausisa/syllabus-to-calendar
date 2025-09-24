@@ -7,11 +7,9 @@ import pdfjsLib from "../lib/pdfSetup";
  * @returns extractFromFile (function), prompt (to pass into LLM), and loading (boolean)
  */
 export function usePdfTableExtractor() {
-  const [loading, setLoading] = useState(false);
   const [prompt, setPrompt] = useState<string>("");
 
   const extractFromFile = async (file: File, tolerance = 3) => {
-    setLoading(true);
     const buffer = await file.arrayBuffer();
 
     // Load PDF
@@ -73,5 +71,5 @@ export function usePdfTableExtractor() {
     setPrompt(prompt);
   };
 
-  return { prompt, loading, extractFromFile };
+  return { prompt, extractFromFile };
 }

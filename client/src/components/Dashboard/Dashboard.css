@@ -11,10 +11,14 @@
 }
 
 .header {
-    min-width: 100vh;
-    display: flex;
-    justify-content: space-around;
+  width: 100%;                 /* span full width of parent */
+  display: flex;
+  justify-content: space-around; /* push items to far left & right */
+  align-items: center;           /* vertically center */
+  padding: 1rem 2rem;            /* optional spacing inside */
+  box-sizing: border-box;
 }
+
 
 .dashboard input[type="file"] {
   padding: 0.5rem;
@@ -54,5 +58,5 @@
 .dashboard .calendar-container {
   width: 100%;
   max-width: 900px;
-  margin-top: 1.5rem;
+  margin: 0 auto;
 }

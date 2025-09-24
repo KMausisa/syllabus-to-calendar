@@ -1,0 +1,24 @@
+/* CalendarOverrides.css */
+.fc {
+  background-color: #f9fafb; /* entire calendar background */
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.fc-toolbar-title {
+  font-size: 1.25rem;
+  color: #111827;
+}
+
+.fc-daygrid-day-number {
+  color: #374151;
+  font-weight: 600;
+}
+
+.fc-event {
+  background-color: #3b82f6;   /* blue events */
+  border: none;
+  color: #fff;
+  padding: 2px 4px;
+  border-radius: 4px;
+}

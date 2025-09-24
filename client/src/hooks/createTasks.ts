@@ -26,7 +26,9 @@ export function useCreateTasks() {
         credentials: "include",
         body: JSON.stringify(tasks),
       });
-      setSuccess("Tasks successfully added to calendar!");
+      setSuccess(
+        "Tasks successfully added to calendar! Please check your google calendar for reference."
+      );
     } catch (err) {
       console.error("Error creating tasks:", err);
       setError("Failed to create tasks. Please try again.");
