@@ -190,8 +190,7 @@ app.post("/api/generate", async (req, res) => {
 });
 
 app.use(express.static(path.join(__dirname, "../client/dist")));
-
-app.get("/:any(.*)", (req: Request, res: Response) => {
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
