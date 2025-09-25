@@ -47,12 +47,6 @@ app.use(
     credentials: true,
   })
 );
-
-app.use(express.static(path.join(__dirname, "../client/dist")));
-
-app.get("*", (req: Request, res: Response) => {
-  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
-});
 // Configure Google OAuth2 client
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -193,6 +187,12 @@ app.post("/api/generate", async (req, res) => {
   });
 
   res.json({ text: completion.choices[0].message.content });
+});
+
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
+app.get("/:any(.*)", (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
 app.listen(5000, () => {
