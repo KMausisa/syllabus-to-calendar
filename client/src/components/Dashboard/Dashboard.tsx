@@ -4,10 +4,10 @@ import { usePdfTableExtractor } from "../../hooks/usePdfTableExtractor";
 import { useCreateTasks } from "../../hooks/createTasks";
 import { handleGenerate } from "../../hooks/handleGenerate";
 
-import CalendarView from "../CalendarView/CalendarView"
-import "./Dashboard.css"
+import CalendarView from "../CalendarView/CalendarView";
+import "./Dashboard.css";
 
-export default function DashBoard({url}: {url: string}) {
+export default function DashBoard({ url }: { url: string }) {
   const [showWelcome, setShowWelcome] = useState<boolean>(true);
   const [exiting, setExiting] = useState<boolean>(false);
   const [response, setResponse] = useState<string>("");
@@ -19,15 +19,15 @@ export default function DashBoard({url}: {url: string}) {
 
   useEffect(() => {
     if (localStorage.getItem("welcomeHidden") === "true") setShowWelcome(false);
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (!prompt) return;
 
     const run = async () => {
-      setLoading(true)
+      setLoading(true);
       const result = await handleGenerate(prompt);
-      console.log("Course assignments:", result)
+      console.log("Course assignments:", result);
       setResponse(result);
 
       const createTaskPrompt = `
@@ -63,24 +63,22 @@ export default function DashBoard({url}: {url: string}) {
       const parsed = JSON.parse(tasksResponse);
       const tasks = parsed.events ?? parsed.result ?? parsed;
 
-      console.log("Tasks to be added to Google Calendar:", tasks)
+      console.log("Tasks to be added to Google Calendar:", tasks);
 
       await createTasks(tasks);
-      setRefresh(prev => prev + 1);
-      setLoading(false)
-      
+      setRefresh((prev) => prev + 1);
+      setLoading(false);
     };
 
     run();
   }, [prompt]);
 
-
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (!file) return;
 
     if (file.type != "application/pdf") {
-      setFileError("Please upload a PDF file")
+      setFileError("Please upload a PDF file");
       return;
     }
 
@@ -89,33 +87,28 @@ export default function DashBoard({url}: {url: string}) {
       return;
     }
 
-    setFileError("")
-    extractFromFile(file)
+    setFileError("");
+    extractFromFile(file);
   };
 
   const handleDismiss = () => {
     setExiting(true);
     setTimeout(() => {
-      setShowWelcome(false)
-      localStorage.setItem("welcomeHidden", "true")
-    }, 300)
-  }
-
-  const handleLogout = () => {
-    console.log("Resetting items...")
-    localStorage.removeItem("welcomeHidden")
-  }
-
+      setShowWelcome(false);
+      localStorage.setItem("welcomeHidden", "true");
+    }, 300);
+  };
 
   return (
     <div className="dashboard">
       {/* Modal Overlay */}
       {showWelcome && (
-        <div className={`welcome-overlay ${exiting ? "exit": "enter"}`}>
-          <div className={`welcome-modal ${exiting ? "exit": "enter"}`}>
+        <div className={`welcome-overlay ${exiting ? "exit" : "enter"}`}>
+          <div className={`welcome-modal ${exiting ? "exit" : "enter"}`}>
             <h2>Welcome to Syllabus-to-Calendar!</h2>
             <p>
-              Upload a PDF syllabus to automatically add assignment dates to your Google Calendar.
+              Upload a PDF syllabus to automatically add assignment dates to
+              your Google Calendar.
             </p>
             <button onClick={handleDismiss}>Got it!</button>
           </div>
@@ -124,9 +117,19 @@ export default function DashBoard({url}: {url: string}) {
 
       {/* Regular Content */}
       <div className="header">
-        <input type="file" accept="application/pdf" onChange={handleFileChange} />
+        <input
+          type="file"
+          accept="application/pdf"
+          onChange={handleFileChange}
+        />
         {fileError && <p className="file-error">{fileError}</p>}
-        <a href={`${url}/logout`} className="logout-button" onClick={handleLogout}>Log out</a>
+        <a
+          href={`${url}/logout`}
+          className="logout-button"
+          onClick={() => localStorage.removeItem("welcomeHidden")}
+        >
+          Log out
+        </a>
       </div>
 
       {loading && <p>Extracting...</p>}
