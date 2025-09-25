@@ -17,7 +17,7 @@
     { "src": "/api/(.*)", "dest": "server/index.ts" },
     {
       "src": "/(.*)",
-      "dest": "/dist/index.html",
+      "dest": "/index.html",
       "methods": ["GET"]
     }
   ]
