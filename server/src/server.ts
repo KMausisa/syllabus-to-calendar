@@ -190,7 +190,14 @@ app.post("/api/generate", async (req, res) => {
 });
 
 app.use(express.static(path.join(__dirname, "../client/dist")));
-app.use((req, res) => {
+
+// SPA fallback for React Router
+app.get("*", (req: Request, res: Response) => {
+  if (req.path.startsWith("/api")) {
+    // Don't rewrite API calls
+    return res.status(404).send("Not Found");
+  }
+  // Serve index.html for all other non-static routes
   res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
