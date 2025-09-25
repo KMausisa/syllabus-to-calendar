@@ -193,7 +193,7 @@ app.use(express.static(path.join(__dirname, "../client/dist")));
 
 // Catch-all to serve index.html for SPA routes
 app.use((req, res, next) => {
-  if (req.path.startsWith("/api")) return next(); // leave API routes alone
+  if (req.path.includes(".")) return next(); // leave API routes alone
   res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
