@@ -1,4 +1,3 @@
-import path from "path";
 import express, { Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -43,7 +42,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: [FRONTEND_URL],
+    origin: [`${FRONTEND_URL}/login`],
     credentials: true,
   })
 );
@@ -187,14 +186,6 @@ app.post("/api/generate", async (req, res) => {
   });
 
   res.json({ text: completion.choices[0].message.content });
-});
-
-app.use(express.static(path.join(__dirname, "../client/dist")));
-
-// Catch-all to serve index.html for SPA routes
-app.use((req, res, next) => {
-  if (req.path.includes(".")) return next(); // leave API routes alone
-  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
 app.listen(5000, () => {
