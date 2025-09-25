@@ -97,7 +97,7 @@ app.get("/logout", (req: Request, res: Response) => {
   });
 
   // Redirect to login page
-  res.redirect(`${FRONTEND_URL}/login`);
+  res.redirect(FRONTEND_URL);
 });
 
 // Check if tokens are generated and return result as boolean.
