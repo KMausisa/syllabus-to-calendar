@@ -100,10 +100,6 @@ app.get("/logout", (req: Request, res: Response) => {
   res.redirect(FRONTEND_URL);
 });
 
-app.get("/policy", (req: Request, res: Response) => {
-  res.redirect(301, `${FRONTEND_URL}/policy`);
-});
-
 // Check if tokens are generated and return result as boolean.
 app.get("/api/session", (req: Request, res: Response) => {
   const token = req.cookies.auth_token;
