@@ -10,9 +10,10 @@ import "./Dashboard.css";
 export default function DashBoard({ url }: { url: string }) {
   const [showWelcome, setShowWelcome] = useState<boolean>(true);
   const [exiting, setExiting] = useState<boolean>(false);
-  const [response, setResponse] = useState<string>("");
   const [refresh, setRefresh] = useState<number>(0);
+  const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string>("");
+  const [showLoading, setShowLoading] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const { prompt, extractFromFile } = usePdfTableExtractor();
   const { createTasks, success, error } = useCreateTasks();
@@ -25,10 +26,8 @@ export default function DashBoard({ url }: { url: string }) {
     if (!prompt) return;
 
     const run = async () => {
-      setLoading(true);
       const result = await handleGenerate(prompt);
       console.log("Course assignments:", result);
-      setResponse(result);
 
       const createTaskPrompt = `
       You are a scheduling assistant.
@@ -88,7 +87,8 @@ export default function DashBoard({ url }: { url: string }) {
     }
 
     setFileError("");
-    extractFromFile(file);
+    setFile(file);
+    setShowLoading(true);
   };
 
   const handleDismiss = () => {
@@ -99,11 +99,25 @@ export default function DashBoard({ url }: { url: string }) {
     }, 300);
   };
 
+  const handleExtractDismiss = () => {
+    setExiting(true);
+    const fileInput = document.getElementById(
+      "file-upload"
+    ) as HTMLInputElement;
+    if (fileInput) fileInput.value = "";
+    setTimeout(() => {
+      setShowLoading(false);
+      setExiting(false);
+    }, 300);
+  };
+
   return (
     <div className="dashboard">
-      {/* Modal Overlay */}
+      {/* Welcome Overlay */}
       {showWelcome && (
-        <div className={`welcome-overlay ${exiting ? "exit" : "enter"}`}>
+        <div
+          className={`overlay welcome-overlay ${exiting ? "exit" : "enter"}`}
+        >
           <div className={`welcome-modal ${exiting ? "exit" : "enter"}`}>
             <h2>Welcome to Syllabus-to-Calendar!</h2>
             <p>
@@ -115,9 +129,32 @@ export default function DashBoard({ url }: { url: string }) {
         </div>
       )}
 
+      {showLoading && (
+        <div
+          className={`overlay loading-overlay ${exiting ? "exit" : "enter"}`}
+        >
+          <div className={`loading-modal ${exiting ? "exit" : "enter"}`}>
+            <p>Your syllabus is being extracted!</p>
+            <div className="buttons">
+              <button
+                onClick={() => {
+                  file && extractFromFile(file);
+                  setLoading(true);
+                  handleExtractDismiss();
+                }}
+              >
+                Got it!
+              </button>
+              <button onClick={handleExtractDismiss}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Regular Content */}
       <div className="header">
         <input
+          id="file-upload"
           type="file"
           accept="application/pdf"
           onChange={handleFileChange}
@@ -133,7 +170,7 @@ export default function DashBoard({ url }: { url: string }) {
       </div>
 
       {loading && <p>Extracting...</p>}
-      {success && <p>{success}</p>}
+      {success && !loading && <p>{success}</p>}
       {error && <p>{error}</p>}
 
       <div className="calendar-container">

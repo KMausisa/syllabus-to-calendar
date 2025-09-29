@@ -62,7 +62,7 @@
 }
 
 /* Dimmed background */
-.welcome-overlay {
+.overlay {
   position: fixed;
   inset: 0;                        /* top:0 right:0 bottom:0 left:0 */
   background: rgba(0, 0, 0, 0.5);   /* gray out underlying dashboard */
@@ -72,16 +72,17 @@
   z-index: 1000;      /* Controls stacking order. Higher value = closer to viewer */
 }
 
-.welcome-overlay.enter {
+.overlay.enter {
   animation: fadeIn 0.3s ease forwards;
 }
 
-.welcome-overlay.exit {
+.overlay.exit {
   animation: fadeOut 0.3s ease forwards;
 }
 
 /* The card itself */
-.welcome-modal {
+.welcome-modal,
+.loading-modal {
   max-width: 480px;
   padding: 2rem;
   background: #fff;
@@ -91,19 +92,23 @@
   transform: translateY(-20px);
 }
 
-.welcome-modal.enter {
+.welcome-modal.enter,
+.loading-modal.enter {
   animation: slideIn 0.3s ease forwards;
 }
 
-.welcome-modal.exit {
+.welcome-modal.exit,
+.loading-modal.exit {
   animation: slideOut 0.3s ease forwards;
 }
 
-.welcome-modal h2 {
+.welcome-modal h2,
+.loading-modal h2 {
   margin-top: 0;
 }
 
-.welcome-modal button {
+.welcome-modal button,
+.loading-modal button {
   margin-top: 1.5rem;
   padding: 0.5rem 1.2rem;
   background: #2563eb;
@@ -113,8 +118,15 @@
   cursor: pointer;
 }
 
-.welcome-modal button:hover {
+.welcome-modal button:hover,
+.loading-modal button:hover {
   background: #1e40af;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }
 
 /* Animations */
