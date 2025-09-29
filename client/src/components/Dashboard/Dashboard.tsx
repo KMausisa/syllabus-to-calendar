@@ -13,6 +13,7 @@ export default function DashBoard({ url }: { url: string }) {
   const [refresh, setRefresh] = useState<number>(0);
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string>("");
+  const [isExtracting, setIsExtracting] = useState<boolean>(false);
   const [showLoading, setShowLoading] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const { prompt, extractFromFile } = usePdfTableExtractor();
@@ -24,6 +25,9 @@ export default function DashBoard({ url }: { url: string }) {
 
   useEffect(() => {
     if (!prompt) return;
+
+    setIsExtracting(false);
+    window.removeEventListener("beforeunload", handleUnload);
 
     const run = async () => {
       const result = await handleGenerate(prompt);
@@ -99,6 +103,19 @@ export default function DashBoard({ url }: { url: string }) {
     }, 300);
   };
 
+  const startExtraction = () => {
+    file && extractFromFile(file);
+    setIsExtracting(true);
+    setLoading(true);
+    window.addEventListener("beforeunload", handleUnload);
+    handleExtractDismiss();
+  };
+
+  const handleUnload = (event: BeforeUnloadEvent) => {
+    event.preventDefault();
+    event.returnValue = "";
+  };
+
   const handleExtractDismiss = () => {
     setExiting(true);
     const fileInput = document.getElementById(
@@ -136,15 +153,7 @@ export default function DashBoard({ url }: { url: string }) {
           <div className={`loading-modal ${exiting ? "exit" : "enter"}`}>
             <p>Your syllabus is being extracted!</p>
             <div className="buttons">
-              <button
-                onClick={() => {
-                  file && extractFromFile(file);
-                  setLoading(true);
-                  handleExtractDismiss();
-                }}
-              >
-                Got it!
-              </button>
+              <button onClick={startExtraction}>Got it!</button>
               <button onClick={handleExtractDismiss}>Cancel</button>
             </div>
           </div>
@@ -176,6 +185,11 @@ export default function DashBoard({ url }: { url: string }) {
       <div className="calendar-container">
         <CalendarView refresh={refresh} />
       </div>
+      <footer>
+        <a className="privacy-policy" href="/policy">
+          Privacy Policy
+        </a>
+      </footer>
     </div>
   );
 }
