@@ -24,7 +24,7 @@
   line-height: 1.4;
 }
 
-.login-page a {
+.login-page .sign-in {
   display: inline-block;
   padding: 0.75rem 1.5rem;
   background-color: #4285f4;          /* Google blue */
@@ -35,6 +35,17 @@
   transition: background-color 0.2s ease;
 }
 
-.login-page a:hover {
+.login-page .sign-in:hover {
   background-color: #3367d6;          /* darker blue on hover */
+}
+
+footer {
+  margin-top: 32px
+}
+
+.privacy-policy {
+  padding: 1rem 0;
+  font-size: 0.875rem;
+  color: #6b7280;               
+  text-decoration: none;
 }
